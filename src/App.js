@@ -1,25 +1,72 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./app.scss";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { CSSTransition } from "react-transition-group";
+import About from "./pages/About";
+import Home from "./pages/Home";
+import Header from "./Components/Header";
+import { gsap } from "gsap";
+
+const routes = [
+  { path: "/about", name: "About", Component: About },
+  { path: "/", name: "Home", Component: Home }
+];
 
 function App() {
+  const onEnter = node => {
+    gsap.from(
+      [node.children[0].firstElementChild, node.children[0].lastElementChild],
+      0.6,
+      {
+        y: 30,
+        delay: 0.6,
+        ease: "power3.InOut",
+        opacity: 0,
+        stagger: {
+          amount: 0.6
+        }
+      }
+    );
+  };
+
+  const onExit = node => {
+    gsap.to(
+      [node.children[0].firstElementChild, node.children[0].lastElementChild],
+      0.6,
+      {
+        y: -30,
+        ease: "power3.InOut",
+        stagger: {
+          amount: 0.2
+        }
+      }
+    );
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header />
+      <div className="relative flex justify-center w-full">
+        {routes.map(({ path, Component }) => (
+          <Route key={path} exact path={path}>
+            {({ match }) => (
+              <CSSTransition
+                in={match != null}
+                timeout={1200}
+                classNames="page"
+                onExit={onExit}
+                onEntering={onEnter}
+                unmountOnExit
+              >
+                <div className="page">
+                  <Component />
+                </div>
+              </CSSTransition>
+            )}
+          </Route>
+        ))}
+      </div>
+    </>
   );
 }
 
